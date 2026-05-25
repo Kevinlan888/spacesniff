@@ -3,3 +3,6 @@ __pycache__/
 .pytest_cache/
 *.pyc
 spacesniff.egg-info/
+build/
+dist/
+spacesniff.spec

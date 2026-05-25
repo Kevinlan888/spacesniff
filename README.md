@@ -19,6 +19,21 @@ Scan a specific root directory:
 .venv/bin/spacesniff /home/kevin
 ```
 
+## Standalone Build
+
+Build a standalone executable with PyInstaller:
+
+```bash
+.venv/bin/pip install pyinstaller
+./scripts/build-standalone.sh
+```
+
+The output binary will be created at:
+
+```bash
+dist/spacesniff
+```
+
 ## Features
 
 - Interactive terminal UI built with Textual
