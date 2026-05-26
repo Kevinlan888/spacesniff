@@ -2,7 +2,15 @@
 
 A Python terminal disk usage explorer inspired by SpaceSniffer.
 
+## Platform Support
+
+- Linux: supported
+- macOS: expected to work, not yet verified in this repo
+- Windows: supported from source, with a dedicated PowerShell standalone build script
+
 ## Setup
+
+### Linux / macOS
 
 Create a project-local virtual environment and install the package:
 
@@ -11,27 +19,55 @@ python3 -m venv .venv
 .venv/bin/pip install -e .
 ```
 
+### Windows PowerShell
+
+Create a project-local virtual environment and install the package:
+
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\pip install -e .
+```
+
 ## Usage
 
-Scan a specific root directory:
+### Linux / macOS
 
 ```bash
 .venv/bin/spacesniff /home/kevin
 ```
 
+### Windows PowerShell
+
+```powershell
+.\.venv\Scripts\spacesniff C:\Users\kevin
+```
+
 ## Standalone Build
 
-Build a standalone executable with PyInstaller:
+### Linux / macOS
 
 ```bash
 .venv/bin/pip install pyinstaller
 ./scripts/build-standalone.sh
 ```
 
-The output binary will be created at:
+Output:
 
 ```bash
 dist/spacesniff
+```
+
+### Windows PowerShell
+
+```powershell
+.\.venv\Scripts\pip install pyinstaller
+.\scripts\build-standalone.ps1
+```
+
+Output:
+
+```powershell
+dist\spacesniff.exe
 ```
 
 ## Features
@@ -55,10 +91,24 @@ dist/spacesniff
 - `i`: refresh current item details
 - `q`: quit
 
+## Windows Notes
+
+- The current clipboard helper already tries `clip.exe`, so copy-path should work on Windows terminals that expose it.
+- The Linux binary under `dist/spacesniff` does not run on Windows. Build `dist\spacesniff.exe` on a Windows machine.
+- `Textual` works in modern Windows terminals such as Windows Terminal and recent PowerShell sessions.
+
 ## Verification
 
 Run the test suite:
 
+### Linux / macOS
+
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
+```
+
+### Windows PowerShell
+
+```powershell
+.\.venv\Scripts\python -m unittest discover -s tests -v
 ```
