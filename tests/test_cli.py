@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from spacesniff.cli import validate_root
+from spacesniff.cli import build_parser, validate_root
 
 
 class ValidateRootTests(unittest.TestCase):
@@ -32,3 +32,9 @@ class ValidateRootTests(unittest.TestCase):
                 root, error = validate_root(temp_dir)
             self.assertIsNone(root)
             self.assertIn("not readable", error or "")
+
+    def test_parser_supports_exclude_and_one_file_system(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["/tmp", "--one-file-system", "--exclude", "node_modules", "--exclude", "/proc"])
+        self.assertTrue(args.one_file_system)
+        self.assertEqual(args.exclude, ["node_modules", "/proc"])

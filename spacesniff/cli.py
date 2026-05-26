@@ -4,6 +4,8 @@ import argparse
 import os
 from pathlib import Path
 
+from spacesniff.scanner import build_scan_options
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -11,6 +13,18 @@ def build_parser() -> argparse.ArgumentParser:
         description="Interactive terminal disk usage explorer.",
     )
     parser.add_argument("path", help="Root directory to scan.")
+    parser.add_argument(
+        "--one-file-system",
+        action="store_true",
+        help="Do not cross filesystem boundaries while scanning.",
+    )
+    parser.add_argument(
+        "--exclude",
+        action="append",
+        default=[],
+        metavar="PATTERN",
+        help="Exclude a file, directory name, glob, or absolute path prefix. Repeatable.",
+    )
     return parser
 
 
@@ -33,6 +47,12 @@ def main(argv: list[str] | None = None) -> int:
     if error is not None or root is None:
         parser.exit(2, f"spacesniff: error: {error}\n")
 
+    options = build_scan_options(
+        root,
+        one_file_system=args.one_file_system,
+        exclude_patterns=tuple(Path(pattern).expanduser().resolve().as_posix() if pattern.startswith(("~", "/")) else pattern for pattern in args.exclude),
+    )
+
     try:
         from spacesniff.app import run_app
     except ModuleNotFoundError as exc:
@@ -44,5 +64,5 @@ def main(argv: list[str] | None = None) -> int:
             )
         raise
 
-    run_app(root)
+    run_app(root, options)
     return 0

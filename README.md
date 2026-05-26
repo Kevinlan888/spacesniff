@@ -34,13 +34,40 @@ py -3 -m venv .venv
 
 ```bash
 .venv/bin/spacesniff /home/kevin
+.venv/bin/spacesniff / --one-file-system --exclude node_modules --exclude /var/cache
 ```
 
 ### Windows PowerShell
 
 ```powershell
 .\.venv\Scripts\spacesniff C:\Users\kevin
+.\.venv\Scripts\spacesniff C:\ --exclude node_modules --exclude C:\Windows\Temp
 ```
+
+## CLI Options
+
+Current help output:
+
+```text
+usage: spacesniff [-h] [--one-file-system] [--exclude PATTERN] path
+```
+
+Options:
+
+- `path`: root directory to scan
+- `--one-file-system`: do not cross filesystem boundaries while scanning
+- `--exclude PATTERN`: exclude a file name, directory name, glob, or absolute path prefix; repeatable
+
+## Linux Scanning Defaults
+
+On Linux, spacesniff ignores common virtual filesystem roots by default:
+
+- `/proc`
+- `/sys`
+- `/dev`
+- `/run`
+
+This avoids scanning pseudo-filesystems that do not represent normal disk usage.
 
 ## Standalone Build
 
@@ -79,6 +106,7 @@ dist\spacesniff.exe
 - Manual refresh for the current directory subtree
 - Delete files or directories with a confirmation dialog that shows the full path
 - Copy the selected path to the system clipboard when available
+- Optional filesystem-boundary restriction and manual exclude filters
 
 ## Controls
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
 
@@ -29,3 +29,13 @@ class EntryInfo:
 class DirectorySnapshot:
     path: Path
     entries: list[EntryInfo]
+
+
+@dataclass(slots=True)
+class ScanOptions:
+    root_path: Path
+    one_file_system: bool = False
+    exclude_patterns: tuple[str, ...] = ()
+    ignore_virtual_filesystems: bool = True
+    virtual_roots: tuple[Path, ...] = field(default_factory=tuple)
+    root_device: int | None = None

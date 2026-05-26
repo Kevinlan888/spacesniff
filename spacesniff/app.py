@@ -13,7 +13,7 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Footer, Label, ListItem, ListView, Static
 
 from spacesniff.clipboard import copy_to_clipboard
-from spacesniff.models import EntryInfo, ScanStatus
+from spacesniff.models import EntryInfo, ScanOptions, ScanStatus
 from spacesniff.scanner import format_bytes, get_entry_details, iter_directory_sizes, list_entries
 
 
@@ -159,9 +159,10 @@ class SpaceSnifferApp(App[None]):
         Binding("q", "quit", "Quit"),
     ]
 
-    def __init__(self, root_path: Path) -> None:
+    def __init__(self, root_path: Path, scan_options: ScanOptions) -> None:
         super().__init__()
         self.root_path = root_path
+        self.scan_options = scan_options
         self.current_path = root_path
         self.history: list[Path] = []
         self.snapshot_cache: dict[Path, list[EntryInfo]] = {}
@@ -261,7 +262,7 @@ class SpaceSnifferApp(App[None]):
         if self.selected_entry is None:
             self.update_details(None)
             return
-        self.selected_entry = get_entry_details(self.selected_entry)
+        self.selected_entry = get_entry_details(self.selected_entry, self.scan_options)
         self.update_details(self.selected_entry)
         row = self.row_index.get(self.selected_entry.path)
         if row is not None:
@@ -289,7 +290,7 @@ class SpaceSnifferApp(App[None]):
         snapshot_entries = self.snapshot_cache.get(path)
         if snapshot_entries is None:
             try:
-                snapshot = list_entries(path)
+                snapshot = list_entries(path, self.scan_options)
             except OSError as exc:
                 self.set_status(f"cannot open {path}: {exc}")
                 if self.history:
@@ -335,7 +336,7 @@ class SpaceSnifferApp(App[None]):
         if entry is None:
             panel.update(f"Current path:\n{self.current_path}\n\nThis directory is empty.")
             return
-        detail_entry = get_entry_details(entry)
+        detail_entry = get_entry_details(entry, self.scan_options)
         kind = "Directory" if detail_entry.is_dir else "File"
         modified = (
             datetime.fromtimestamp(detail_entry.modified_at).strftime("%Y-%m-%d %H:%M:%S")
@@ -369,7 +370,7 @@ class SpaceSnifferApp(App[None]):
 
     @work(thread=True)
     def scan_directory(self, path: Path, token: int) -> None:
-        for child_path, (size, error) in iter_directory_sizes(path):
+        for child_path, (size, error) in iter_directory_sizes(path, self.scan_options):
             self.call_from_thread(self.apply_scan_result, path, token, child_path, size, error)
         self.call_from_thread(self.finish_scan, path, token)
 
@@ -440,6 +441,6 @@ class SpaceSnifferApp(App[None]):
             self.update_details(None)
 
 
-def run_app(root_path: Path) -> None:
-    app = SpaceSnifferApp(root_path)
+def run_app(root_path: Path, scan_options: ScanOptions) -> None:
+    app = SpaceSnifferApp(root_path, scan_options)
     app.run()

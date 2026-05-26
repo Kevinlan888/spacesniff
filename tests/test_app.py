@@ -5,11 +5,12 @@ import unittest
 from pathlib import Path
 
 from spacesniff.app import SpaceSnifferApp
+from spacesniff.scanner import build_scan_options
 
 
 class TrackingSpaceSnifferApp(SpaceSnifferApp):
     def __init__(self, root_path: Path) -> None:
-        super().__init__(root_path)
+        super().__init__(root_path, build_scan_options(root_path))
         self.started_scans: list[Path] = []
 
     def start_scan(self, path: Path) -> None:
@@ -26,7 +27,7 @@ class AppInteractionTests(unittest.IsolatedAsyncioTestCase):
             child.mkdir()
             (child / "nested.txt").write_text("hello", encoding="utf-8")
 
-            app = SpaceSnifferApp(root)
+            app = SpaceSnifferApp(root, build_scan_options(root))
 
             async with app.run_test() as pilot:
                 await pilot.pause()
@@ -75,7 +76,7 @@ class AppInteractionTests(unittest.IsolatedAsyncioTestCase):
             child.mkdir()
             (child / "nested.txt").write_text("hello", encoding="utf-8")
 
-            app = SpaceSnifferApp(root)
+            app = SpaceSnifferApp(root, build_scan_options(root))
 
             async with app.run_test() as pilot:
                 await pilot.pause()
@@ -94,7 +95,7 @@ class AppInteractionTests(unittest.IsolatedAsyncioTestCase):
             child = root / "child"
             child.mkdir()
 
-            app = SpaceSnifferApp(root)
+            app = SpaceSnifferApp(root, build_scan_options(root))
 
             async with app.run_test() as pilot:
                 await pilot.pause()
